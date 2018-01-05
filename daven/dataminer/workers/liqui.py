@@ -28,7 +28,7 @@ class Worker():
 
             print('\nЦикл завершен.\n{}\n\n\n'.format(timezone.now() - start_time))
 
-            while timezone.now() - start_time < i*datetime.timedelta(0, 10*60, 0):
+            while timezone.now() - start_time < i*datetime.timedelta(0, 5*60, 0):
                 time.sleep(1)
             print('Переходим к следующему циклу. {}'.format(timezone.now() - start_time))
             i += 1
@@ -104,19 +104,25 @@ class Worker():
         info = {}
         info['pair'] = pair
 
-        info['ticker'] = self.load('ticker', pair=pair.name).get(pair.name, None)
+        data = self.load('ticker', pair=pair.name)
+        info['ticker'] = data.get(pair.name, None)
         if info['ticker'] is None:
             print(pair, '- no ticker')
+            print(data)
             return None
 
-        info['orders'] = self.load('depth', pair=pair.name, limit=2000).get(pair.name, None)
+        data = self.load('depth', pair=pair.name, limit=2000)
+        info['orders'] = data.get(pair.name, None)
         if info['orders'] is None:
             print(pair, '- no orders')
+            print(data)
             return None
 
-        info['trades'] = self.load('trades', pair=pair.name, limit=2000).get(pair.name, None)
+        data = self.load('trades', pair=pair.name, limit=2000)
+        info['trades'] = data.get(pair.name, None)
         if info['trades'] is None:
             print(pair, '- no trades')
+            print(data)
             return None
 
         return info
