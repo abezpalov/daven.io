@@ -1,3 +1,6 @@
+daven/dataminer/__pycache__/
+daven/dataminer/workers/__pycache__/
+daven/daven/__pycache__/
 data/
 venv/
 .env

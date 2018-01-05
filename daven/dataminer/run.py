@@ -1,9 +1,11 @@
 import os
 import sys
+from decouple import config
 
 from django.utils import timezone
 
-sys.path.append('/home/abezpalov/daven.io/daven/')
+SYS_PATH = config('SYS_PATH')
+sys.path.append(SYS_PATH)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'daven.settings'
 
 from django.core.wsgi import get_wsgi_application
