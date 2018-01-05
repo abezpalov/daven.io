@@ -106,17 +106,17 @@ class Worker():
 
         info['ticker'] = self.load('ticker', pair=pair.name).get(pair.name, None)
         if info['ticker'] is None:
-            print('No ticker')
+            print(pair, '- no ticker')
             return None
 
         info['orders'] = self.load('depth', pair=pair.name, limit=2000).get(pair.name, None)
         if info['orders'] is None:
-            print('No orders')
+            print(pair, '- no orders')
             return None
 
         info['trades'] = self.load('trades', pair=pair.name, limit=2000).get(pair.name, None)
         if info['trades'] is None:
-            print('No trades')
+            print(pair, '- no trades')
             return None
 
         return info
