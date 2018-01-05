@@ -17,23 +17,17 @@ class Worker():
 
         pairs = self.get_pairs()
 
-        i = 1
         start_time = timezone.now()
-        while True:
-            for pair in pairs:
-                info = self.get_pair_json_info(pair)
-                if info is not None:
-                    PairJSONInfo.objects.add(**info)
-                    print(pair)
 
-            print('\nЦикл завершен.\n{}\n\n\n'.format(timezone.now() - start_time))
+        for pair in pairs:
+            info = self.get_pair_json_info(pair)
+            if info is not None:
+                PairJSONInfo.objects.add(**info)
+                print(pair)
 
-            while timezone.now() - start_time < i*datetime.timedelta(0, 5*60, 0):
-                time.sleep(1)
-            print('Переходим к следующему циклу. {}'.format(timezone.now() - start_time))
-            i += 1
+        print('Цикл завершен.\n{}\n\n\n'.format(timezone.now() - start_time))
 
-    def load(self, method, pair = None, limit = None, timeout = 60, quantity_of_try = 10):
+    def load(self, method, pair = None, limit = None, timeout = 30, quantity_of_try = 3):
         'Функция загрузки открытых данных'
 
         if method in ('depth', 'trades'):
@@ -52,7 +46,7 @@ class Worker():
                 return json.loads(r.text)
             except requests.exceptions.ConnectionError:
                 print('Ошибка! Нет связи.')
-                time.sleep(10)
+                time.sleep(5)
             except requests.exceptions.Timeout:
                 print('Ошибка! Истекло время ожидания.')
                 time.sleep(1)
