@@ -25,7 +25,7 @@ class Worker():
                 PairJSONInfo.objects.add(**info)
                 print(pair)
 
-        print('Цикл завершен.\n{}\n\n\n'.format(timezone.now() - start_time))
+        print('Цикл завершен.\nВремя завершения: {}\nВремя выполнения{}\n\n'.format(timezone.now(), timezone.now() - start_time))
 
     def load(self, method, pair = None, limit = None, timeout = 30, quantity_of_try = 3):
         'Функция загрузки открытых данных'
