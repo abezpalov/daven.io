@@ -1,5 +1,6 @@
 daven/dataminer/__pycache__/
 daven/dataminer/workers/__pycache__/
+daven/dataminer/migrations/__pycache__/
 daven/daven/__pycache__/
 daven/dataminer/workers/.ipynb_checkpoints/
 data/

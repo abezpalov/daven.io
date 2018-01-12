@@ -104,13 +104,13 @@ class PairManager(models.Manager):
 
         try:
             o = self.get(name = kwargs['name'], bourse = kwargs['bourse'])
-            o.min_price = kwargs['min_price']
-            o.max_price = kwargs['max_price']
-            o.min_amount = kwargs['min_amount']
-            o.max_amount = kwargs['max_amount']
-            o.min_total = kwargs['min_total']
-            o.hidden = kwargs['hidden']
-            o.fee = kwargs['fee']
+            o.min_price = kwargs.get('min_price', None)
+            o.max_price = kwargs.get('max_price', None)
+            o.min_amount = kwargs.get('min_amount', None)
+            o.max_amount = kwargs.get('max_amount', None)
+            o.min_total = kwargs('min_total', None)
+            o.hidden = kwargs.get('hidden', None)
+            o.fee = kwargs.get('fee', None)
             o.updated_at = timezone.now()
             o.save()
 
@@ -132,13 +132,13 @@ class Pair(models.Model):
     name = models.CharField(max_length = 64, db_index = True)
     first_currency = models.ForeignKey(Currency, on_delete = models.CASCADE, related_name = 'first_pairs')
     second_currency = models.ForeignKey(Currency, on_delete = models.CASCADE, related_name = 'second_pairs')
-    min_price = models.FloatField(default = 0.0)
-    max_price = models.FloatField(default = 0.0)
-    min_amount = models.FloatField(default = 0.0)
-    max_amount = models.FloatField(default = 0.0)
-    min_total = models.FloatField(default = 0.0)
+    min_price = models.FloatField(null=True)
+    max_price = models.FloatField(null=True)
+    min_amount = models.FloatField(null=True)
+    max_amount = models.FloatField(null=True)
+    min_total = models.FloatField(null=True)
     hidden = models.BooleanField(default = False)
-    fee = models.FloatField(default = 0.0)
+    fee = models.FloatField(null=True, default = None)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(null = True)
 
