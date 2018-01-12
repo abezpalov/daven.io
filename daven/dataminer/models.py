@@ -108,7 +108,7 @@ class PairManager(models.Manager):
             o.max_price = kwargs.get('max_price', None)
             o.min_amount = kwargs.get('min_amount', None)
             o.max_amount = kwargs.get('max_amount', None)
-            o.min_total = kwargs('min_total', None)
+            o.min_total = kwargs.get('min_total', None)
             o.hidden = kwargs.get('hidden', None)
             o.fee = kwargs.get('fee', None)
             o.updated_at = timezone.now()
