@@ -29,7 +29,7 @@ class Worker():
     def load(self, method, pair = None, limit = None, timeout = 30, quantity_of_try = 3):
         'Функция загрузки открытых данных'
 
-        if method in ('depth', 'trades'):
+        if method in ('order_book'):
             limit = 1000
 
         if pair and limit:
@@ -42,7 +42,7 @@ class Worker():
         for i in range(quantity_of_try):
             try:
                 r = requests.get(url, timeout = timeout)
-                return json.loads(r.text)
+                return r.json()
             except requests.exceptions.ConnectionError:
                 print('Ошибка! Нет связи.')
                 time.sleep(5)
@@ -61,12 +61,12 @@ class Worker():
     def get_pairs(self):
         'Загрузка информации о валютах и валютных парах'
 
-        pairs_ = self.load('info')['pairs']
+        pairs_ = self.load('pair_settings')
 
         currencies = set()
         for pair_name in pairs_:
             for currency_name in pair_name.split('_'):
-                currencies.add(currency_name)
+                currencies.add(currency_name.lower())
         for currency_name in currencies:
             currency = Currency.objects.take(name=currency_name)
             print('Currency:', currency)
@@ -75,8 +75,8 @@ class Worker():
         for pair_name in pairs_:
             pair_ = {}
             pair_['bourse'] = self.bourse
-            pair_['name'] = pair_name
-            pair_['first_currency'], pair_['second_currency'] = pair_name.split('_')
+            pair_['name'] = pair_name.lower()
+            pair_['first_currency'], pair_['second_currency'] = pair_['name'].split('_')
             pair_['first_currency'] = Currency.objects.take(name=pair_['first_currency'])
             pair_['second_currency'] = Currency.objects.take(name=pair_['second_currency'])
             pair_['min_price'] = pairs_[pair_name]['min_price']
