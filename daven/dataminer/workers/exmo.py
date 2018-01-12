@@ -1,5 +1,4 @@
 import requests
-import json
 import time
 import datetime
 from django.utils import timezone
@@ -9,8 +8,8 @@ from dataminer.models import *
 class Worker():
 
     def __init__(self):
-        self.bourse = Bourse.objects.take(**{'name': 'liqui', 'full_name': 'Liqui.io',
-                                             'base_url': 'https://api.liqui.io/api/3'})
+        self.bourse = Bourse.objects.take(**{'name': 'exmo', 'full_name': 'Exmo.me',
+                                             'base_url': 'https://api.exmo.com/v1'})
         print('Bourse:', self.bourse)
 
     def run(self):
@@ -31,7 +30,7 @@ class Worker():
         'Функция загрузки открытых данных'
 
         if method in ('depth', 'trades'):
-            limit = 2000
+            limit = 1000
 
         if pair and limit:
             url = '{}/{}/{}?limit={}'.format(self.bourse.base_url, method, pair, limit)
