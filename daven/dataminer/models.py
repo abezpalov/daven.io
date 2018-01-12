@@ -136,6 +136,8 @@ class Pair(models.Model):
     max_price = models.FloatField(null=True)
     min_amount = models.FloatField(null=True)
     max_amount = models.FloatField(null=True)
+    min_quantity = models.FloatField(null=True)
+    max_quantity = models.FloatField(null=True)
     min_total = models.FloatField(null=True)
     hidden = models.BooleanField(default = False)
     fee = models.FloatField(null=True, default = None)
