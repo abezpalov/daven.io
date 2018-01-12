@@ -111,12 +111,12 @@ class PairManager(models.Manager):
             o.min_quantity = kwargs.get('min_quantity', None)
             o.max_quantity = kwargs.get('max_quantity', None)
             o.min_total = kwargs.get('min_total', None)
-            o.hidden = kwargs.get('hidden', None)
+            o.hidden = kwargs.get('hidden', False)
             o.fee = kwargs.get('fee', None)
             o.updated_at = timezone.now()
             o.save()
 
-        except Exception:
+        except models.:
             o = Pair(**kwargs)
             o.save()
 
