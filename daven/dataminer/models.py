@@ -116,7 +116,7 @@ class PairManager(models.Manager):
             o.updated_at = timezone.now()
             o.save()
 
-        except models.:
+        except Exception:
             o = Pair(**kwargs)
             o.save()
 
