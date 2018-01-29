@@ -1,8 +1,10 @@
 daven/dataminer/__pycache__/
-daven/dataminer/workers/__pycache__/
+daven/dataminer/exporters/__pycache__/
+daven/dataminer/importers/__pycache__/
 daven/dataminer/migrations/__pycache__/
 daven/daven/__pycache__/
-daven/dataminer/workers/.ipynb_checkpoints/
+daven/dataminer/exporters/.ipynb_checkpoints/
+daven/dataminer/importers/.ipynb_checkpoints/
 data/
 venv/
 .env
