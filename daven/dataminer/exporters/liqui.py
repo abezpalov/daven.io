@@ -59,17 +59,19 @@ class Worker():
         for key in keys:
             data[key] = []
 
-        infos = PairJSONInfo.objects.filter(pair = pair)
+        infos = PairJSONInfo.objects.filter(pair = pair).values('id', 'ticker', 'orders', 'trades',
+                                                                'created_at')
         for info in infos:
 
             # Base info
-            data['info_id'].append(str(info.id))
-            data['bourse_name'].append(str(pair.bourse.name))
+            print(str(info['id']))
+            data['info_id'].append(str(info['id']))
+            data['bourse_name'].append(str(self.bourse.name))
             data['pair_id'].append(str(pair.id))
             data['pair_name'].append(str(pair.name))
 
             # Ticker
-            ticker = json.loads(str(info.ticker).replace("'", '"'))
+            ticker = json.loads(info['ticker'].replace("'", '"'))
             data['ticker_high'].append(ticker['high'])
             data['ticker_low'].append(ticker['low'])
             data['ticker_avg'].append(ticker['avg'])
@@ -81,7 +83,7 @@ class Worker():
             data['ticker_updated'].append(ticker['updated'])
 
             # Orders
-            orders = json.loads(str(info.orders).replace("'", '"'))
+            orders = json.loads(str(info['orders'].replace("'", '"')))
 
             i = 0
             for order in orders['asks']:
@@ -106,7 +108,7 @@ class Worker():
                 i += 1
 
             # Trades
-            trades = json.loads(str(info.trades).replace("'", '"'))
+            trades = json.loads(str(info['trades'].replace("'", '"')))
             i = 0
             for trade in trades:
                 if trade['type'] == 'ask':
@@ -129,6 +131,6 @@ class Worker():
                 data['trade_{}_timestamp'.format(i)].append(None)
                 i += 1
 
-            data['created_at'.format(i)].append(info.created_at)
+            data['created_at'.format(i)].append(info['created_at'])
 
         return pd.DataFrame(data, columns = keys)
