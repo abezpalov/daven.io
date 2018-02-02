@@ -11,22 +11,24 @@ class Worker():
         self.bourse = Bourse.objects.take(**{'name': 'exmo', 'full_name': 'Exmo.me',
                                              'base_url': 'https://api.exmo.com/v1'})
         print('Bourse:', self.bourse)
+        self.start_time = timezone.now()
 
     def run(self):
 
+        # Получаем список валютных пар
         pairs = self.get_pairs()
 
+        # Получаем статистики объёмов по валютным парам
         tickers_ = self.get_tickers()
 
-        start_time = timezone.now()
-
         for pair in pairs:
-            info = self.get_pair_json_info(pair, tickers_.get(pair.name.upper()))
+            info = self.get_pair_info(pair, tickers_)
             if info is not None:
-                PairJSONInfo.objects.add(**info)
                 print(pair)
+                PairInfo.objects.add(pair = pair, content = info)
 
-        print('Цикл завершен.\nВремя завершения: {}\nВремя выполнения{}\n\n'.format(timezone.now(), timezone.now() - start_time))
+        print('Цикл завершен.\nВремя завершения: {}\nВремя выполнения{}\n\n'.format(
+                timezone.now(), timezone.now() - self.start_time))
 
     def load(self, method, pair = None, limit = None, timeout = 30, quantity_of_try = 3):
         'Функция загрузки открытых данных'
@@ -48,14 +50,8 @@ class Worker():
             except requests.exceptions.Timeout:
                 print('Ошибка! Истекло время ожидания.')
                 time.sleep(1)
-            except json.decoder.JSONDecodeError:
-                print('Ошибка! Не удаётся декодировать JSON.')
-                time.sleep(1)
-            except json.decoder.SSLError:
-                print('Ошибка! Подменён сертификат SSL.')
-                return False
 
-        return False
+        return None
 
     def get_pairs(self):
         'Загрузка информации о валютах и валютных парах'
@@ -96,32 +92,19 @@ class Worker():
         tickers_ = self.load('ticker')
         return tickers_
 
-    def get_pair_json_info(self, pair, ticker_):
+    def get_pair_info(self, pair, ticker_):
 
         if pair.hidden:
             return None
 
         info = {}
-        info['pair'] = pair
 
-        info['ticker'] = ticker_
-        if info['ticker'] is None:
-            print(pair, '- no ticker')
-            print(data)
-            return None
+        info['ticker'] = ticker_.get(pair.name.upper(), None)
 
         data = self.load('order_book', pair=pair.name.upper(), limit=1000)
         info['orders'] = data.get(pair.name.upper(), None)
-        if info['orders'] is None:
-            print(pair, '- no orders')
-            print(data)
-            return None
 
         data = self.load('trades', pair=pair.name.upper())
         info['trades'] = data.get(pair.name.upper(), None)
-        if info['trades'] is None:
-            print(pair, '- no trades')
-            print(data)
-            return None
 
         return info

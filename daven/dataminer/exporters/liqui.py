@@ -55,6 +55,10 @@ class Worker():
             keys.append('trade_{}_timestamp'.format(i))
         keys.append('created_at')
 
+        infos_len = PairJSONInfo.objects.filter(pair = pair).count()
+        print(infos_len)
+        # TODO
+
         data = {}
         for key in keys:
             data[key] = []
@@ -71,44 +75,63 @@ class Worker():
             data['pair_name'].append(str(pair.name))
 
             # Ticker
-            ticker = json.loads(info['ticker'].replace("'", '"'))
-            data['ticker_high'].append(ticker['high'])
-            data['ticker_low'].append(ticker['low'])
-            data['ticker_avg'].append(ticker['avg'])
-            data['ticker_vol'].append(ticker['vol'])
-            data['ticker_vol_cur'].append(ticker['vol_cur'])
-            data['ticker_last'].append(ticker['last'])
-            data['ticker_buy'].append(ticker['buy'])
-            data['ticker_sell'].append(ticker['sell'])
-            data['ticker_updated'].append(ticker['updated'])
+            ticker = info['ticker']
+            if ticker:
+                ticker = json.loads(ticker.replace("'", '"'))
+                data['ticker_high'].append(ticker['high'])
+                data['ticker_low'].append(ticker['low'])
+                data['ticker_avg'].append(ticker['avg'])
+                data['ticker_vol'].append(ticker['vol'])
+                data['ticker_vol_cur'].append(ticker['vol_cur'])
+                data['ticker_last'].append(ticker['last'])
+                data['ticker_buy'].append(ticker['buy'])
+                data['ticker_sell'].append(ticker['sell'])
+                data['ticker_updated'].append(ticker['updated'])
+            else:
+                data['ticker_high'].append(None)
+                data['ticker_low'].append(None)
+                data['ticker_avg'].append(None)
+                data['ticker_vol'].append(None)
+                data['ticker_vol_cur'].append(None)
+                data['ticker_last'].append(None)
+                data['ticker_buy'].append(None)
+                data['ticker_sell'].append(None)
+                data['ticker_updated'].append(None)
 
             # Orders
-            orders = json.loads(str(info['orders'].replace("'", '"')))
+            orders = info['orders']
+            if orders:
+                orders = json.loads(str(orders).replace("'", '"'))
 
             i = 0
-            for order in orders['asks']:
-                price, vol = order
-                data['order_ask_{}_price'.format(i)].append(price)
-                data['order_ask_{}_vol'.format(i)].append(vol)
-                i += 1
+            if orders:
+                for order in orders['asks']:
+                    price, vol = order
+                    data['order_ask_{}_price'.format(i)].append(price)
+                    data['order_ask_{}_vol'.format(i)].append(vol)
+                    i += 1
             while i < 2000:
                 data['order_ask_{}_price'.format(i)].append(None)
                 data['order_ask_{}_vol'.format(i)].append(None)
                 i += 1
 
             i = 0
-            for order in orders['bids']:
-                price, vol = order
-                data['order_bid_{}_price'.format(i)].append(price)
-                data['order_bid_{}_vol'.format(i)].append(vol)
-                i += 1
+            if orders:
+                for order in orders['bids']:
+                    price, vol = order
+                    data['order_bid_{}_price'.format(i)].append(price)
+                    data['order_bid_{}_vol'.format(i)].append(vol)
+                    i += 1
             while i < 2000:
                 data['order_bid_{}_price'.format(i)].append(None)
                 data['order_bid_{}_vol'.format(i)].append(None)
                 i += 1
 
             # Trades
-            trades = json.loads(str(info['trades'].replace("'", '"')))
+            trades = info['trades']
+            if trades:
+                trades = json.loads(str(trades).replace("'", '"'))
+
             i = 0
             for trade in trades:
                 if trade['type'] == 'ask':
