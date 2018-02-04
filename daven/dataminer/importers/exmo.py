@@ -1,3 +1,4 @@
+import json
 import requests
 import time
 import datetime
@@ -107,4 +108,4 @@ class Worker():
         data = self.load('trades', pair=pair.name.upper())
         info['trades'] = data.get(pair.name.upper(), None)
 
-        return info
+        return json.dumps(info)

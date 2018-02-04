@@ -1,3 +1,4 @@
+import json
 import requests
 import time
 import datetime
@@ -24,7 +25,8 @@ class Worker():
             print(pair)
             PairInfo.objects.add(pair = pair, content = info)
 
-        print('Цикл завершен.\nВремя завершения: {}\nВремя выполнения{}\n\n'.format(timezone.now(), timezone.now() - self.start_time))
+        print('Цикл завершен.\nВремя завершения: {}\nВремя выполнения{}\n\n'.format(
+                timezone.now(), timezone.now() - self.start_time))
 
     def load(self, method, pair = None, limit = None, timeout = 30, quantity_of_try = 3):
         'Функция загрузки открытых данных'
@@ -102,4 +104,4 @@ class Worker():
         data = self.load('trades', pair=pair.name, limit=2000)
         info['trades'] = data.get(pair.name, None)
 
-        return info
+        return json.dumps(info)

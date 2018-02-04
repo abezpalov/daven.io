@@ -14,8 +14,8 @@ from dataminer.models import *
 class Worker():
 
     def __init__(self):
-        self.bourse = Bourse.objects.take(**{'name': 'liqui', 'full_name': 'Liqui.io',
-                                             'base_url': 'https://api.liqui.io/api/3'})
+        self.bourse = Bourse.objects.take(**{'name': 'exmo', 'full_name': 'Exmo.me',
+                                             'base_url': 'https://api.exmo.com/v1'})
         print('Bourse:', self.bourse)
         self.start_time = timezone.now()
 
@@ -41,15 +41,6 @@ class Worker():
 
             self.export_pair_info(pair)
 
-#           df = self.pair_infos_to_df(pair)
-#           
-#           date = str(date)
-#           file_name = '~/export/{} {}.csv.tar.gz'.format(date, str(pair))
-#           df.to_csv(file_name, compression='gzip', index_label='idx')
-#           print(n, file_name)
-
-
-
         print('Цикл завершен.\nВремя завершения: {}\nВремя выполнения{}\n\n'.format(
                 timezone.now(), timezone.now() - self.start_time))
 
@@ -65,6 +56,7 @@ class Worker():
 
         # Количество необходимых датафреймов
         df_count = int(infos_count / max_infos_in_df)
+        print(df_count)
 
         for n in range(df_count):
             infos = PairInfo.objects.filter(pair = pair).values(
@@ -72,7 +64,6 @@ class Worker():
             df = self.pair_infos_to_df(pair, infos)
 
             # Создаём папку
-
             path = '{}{}'.format(self.export_path, pair.name)
             try:
                 os.mkdir(path)
@@ -80,11 +71,11 @@ class Worker():
                 pass
 
             # Пишем в файл
-            date = np.max(df.created_at)
-            date = str(date).split('+')[0]
-            file_name = '{}/{}.csv.tar.gz'.format(path, date)
-            df.to_csv(file_name, compression='gzip', index_label='idx')
-            print(n, file_name)
+#            date = np.max(df.created_at)
+#            date = str(date).split('+')[0]
+#            file_name = '{}/{}.csv.tar.gz'.format(path, date)
+#            df.to_csv(file_name, compression='gzip', index_label='idx')
+#            print(n, file_name)
 
 
     def pair_infos_to_df(self, pair, infos):
@@ -92,7 +83,8 @@ class Worker():
         # Готовим словарь с массивами
         keys = ['info_id', 'bourse_name', 'pair_id', 'pair_name',
                  'ticker_high', 'ticker_low', 'ticker_avg', 'ticker_vol', 'ticker_vol_cur', 'ticker_last',
-                 'ticker_buy', 'ticker_sell', 'ticker_updated']
+                 'ticker_buy', 'ticker_sell', 'ticker_updated'
+        ]
         for i in range(2000):
             keys.append('order_ask_{}_price'.format(i))
             keys.append('order_ask_{}_vol'.format(i))
@@ -121,18 +113,17 @@ class Worker():
             data['pair_id'].append(str(pair.id))
             data['pair_name'].append(str(pair.name))
 
-            content = info['content']
-            if content:
-                content = content.replace("'", '"')
-                content = content.replace('None', 'null')
-                content = json.loads(content)
-
             # Ticker
             try:
-                ticker = content['ticker']
+                ticker = info['content']['ticker']
             except TypeError:
                 ticker = None
+            print(ticker)
+            exit()
+
+
             if ticker:
+                ticker = json.loads(ticker.replace("'", '"'))
                 data['ticker_high'].append(ticker['high'])
                 data['ticker_low'].append(ticker['low'])
                 data['ticker_avg'].append(ticker['avg'])
@@ -155,9 +146,11 @@ class Worker():
 
             # Orders
             try:
-                orders = content['orders']
+                orders = info['content']['orders']
             except TypeError:
                 orders = None
+            if orders:
+                orders = json.loads(str(orders).replace("'", '"'))
 
             i = 0
             if orders:
@@ -187,12 +180,13 @@ class Worker():
 
             # Trades
             try:
-                trades = content['trades']
+                trades = info['content']['trades']
             except TypeError:
                 trades = None
 
             i = 0
             if trades:
+                trades = json.loads(str(trades).replace("'", '"'))
                 for trade in trades:
                     if trade['type'] == 'ask':
                         data['trade_{}_ask'.format(i)].append(True)
@@ -216,6 +210,9 @@ class Worker():
                 i += 1
 
             data['created_at'.format(i)].append(info['created_at'])
+
+#        for key in data:
+#            print(key, len(data[key]))
 
         df = pd.DataFrame(data, columns = keys)
 
