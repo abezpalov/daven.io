@@ -41,15 +41,6 @@ class Worker():
 
             self.export_pair_info(pair)
 
-#           df = self.pair_infos_to_df(pair)
-#           
-#           date = str(date)
-#           file_name = '~/export/{} {}.csv.tar.gz'.format(date, str(pair))
-#           df.to_csv(file_name, compression='gzip', index_label='idx')
-#           print(n, file_name)
-
-
-
         print('Цикл завершен.\nВремя завершения: {}\nВремя выполнения{}\n\n'.format(
                 timezone.now(), timezone.now() - self.start_time))
 
@@ -57,7 +48,7 @@ class Worker():
     def export_pair_info(self, pair):
 
         # Максимальное количество записей в одном датафрейме
-        max_infos_in_df = 200 # 1000
+        max_infos_in_df = 500 # 1000
 
         # Количество записей по данной валютной паре
         infos_count = PairInfo.objects.filter(pair = pair).count()
@@ -122,10 +113,7 @@ class Worker():
             data['pair_name'].append(str(pair.name))
 
             content = info['content']
-            if content:
-                content = content.replace("'", '"')
-                content = content.replace('None', 'null')
-                content = json.loads(content)
+            content = json.loads(content)
 
             # Ticker
             try:
