@@ -25,7 +25,6 @@ class Worker():
             # Чистим мусор
             print('\n{} of {}'.format(n, count_of_party))
             gc.collect()
-            time.sleep(1)
 
             # Загружаем партию объектов
             count = PairInfo.objects.all()[n*count_on_party: (n+1)*count_on_party].count()
