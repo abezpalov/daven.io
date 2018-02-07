@@ -1,3 +1,4 @@
+import gc
 import json
 import time
 import datetime
@@ -15,15 +16,27 @@ class Worker():
 
         infos_count = PairInfo.objects.all().count()
 
-        infos_ids = PairInfo.objects.all().values('id')
+        count_on_party = 100
 
-        for n, info_id in enumerate(infos_ids):
-            info_id = info_id['id']
-            info = PairInfo.objects.get(id = info_id)
-            print('{} of {} - {}'.format(n, infos_count, str(info.id)))
-            info.content = str(info.content)
-            info.content = info.content.replace("'", '"')
-            info.content = info.content.replace('None', 'null')
-            info.content = json.loads(info.content)
-            info.content = json.dumps(info.content)
-            info.save()
+        count_of_party = int(infos_count / count_on_party) + 1
+
+        for n in range(count_of_party):
+
+            # Чистим мусор
+            print('\n{} of {}'.format(n, count_of_party))
+            gc.collect()
+            time.sleep(1)
+
+            # Загружаем партию объектов
+            count = PairInfo.objects.all()[n*count_on_party: (n+1)*count_on_party].count()
+            print(count)
+            infos = PairInfo.objects.all()[n*count_on_party: (n+1)*count_on_party]
+
+            for info in infos:
+                print(info.id)
+                info.content = str(info.content)
+                info.content = info.content.replace("'", '"')
+                info.content = info.content.replace('None', 'null')
+                info.content = json.loads(info.content)
+                info.content = json.dumps(info.content)
+                info.save()
