@@ -113,7 +113,10 @@ class Worker():
             data['pair_name'].append(str(pair.name))
 
             content = info['content']
-            content = json.loads(content)
+            try:
+                content = json.loads(content)
+            except TypeError:
+                content = None
 
             # Ticker
             try:
