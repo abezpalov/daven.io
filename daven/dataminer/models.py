@@ -175,6 +175,7 @@ class PairInfo(models.Model):
     pair = models.ForeignKey(Pair, on_delete=models.CASCADE, related_name='infos')
     content = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    exported_at = models.DateTimeField(null=True)
 
     objects = PairInfoManager()
 

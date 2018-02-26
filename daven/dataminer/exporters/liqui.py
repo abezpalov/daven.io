@@ -51,19 +51,18 @@ class Worker():
         max_infos_in_df = 500 # 1000
 
         # Количество записей по данной валютной паре
-        infos_count = PairInfo.objects.filter(pair = pair).count()
+        infos_count = PairInfo.objects.filter(pair = pair, exported_at = None).count()
         print(infos_count)
 
         # Количество необходимых датафреймов
         df_count = int(infos_count / max_infos_in_df)
 
         for n in range(df_count):
-            infos = PairInfo.objects.filter(pair = pair).values(
-                    'id', 'content', 'created_at')[n*max_infos_in_df : (n+1)*max_infos_in_df]
+            infos = PairInfo.objects.filter(pair = pair, exported_at = None).values(
+                    'id', 'content', 'created_at')[0 : max_infos_in_df]
             df = self.pair_infos_to_df(pair, infos)
 
             # Создаём папку
-
             path = '{}{}'.format(self.export_path, pair.name)
             try:
                 os.mkdir(path)
@@ -76,6 +75,10 @@ class Worker():
             file_name = '{}/{}.csv.tar.gz'.format(path, date)
             df.to_csv(file_name, compression='gzip', index_label='idx')
             print(n, file_name)
+
+            # Помечаем информацию как выгруженную
+            ids = PairInfo.objects.filter(pair = pair, exported_at = None).values_list('id', flat=True)[0 : max_infos_in_df]
+            PairInfo.objects.filter(id__in=list(ids)).update(exported_at = timezone.now())
 
 
     def pair_infos_to_df(self, pair, infos):
