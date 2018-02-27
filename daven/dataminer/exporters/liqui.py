@@ -109,7 +109,7 @@ class Worker():
         for info in infos:
 
             # Base info
-            print(str(info['id']))
+            print(str(info['id']), info['created_at'])
             data['info_id'].append(str(info['id']))
             data['bourse_name'].append(str(self.bourse.name))
             data['pair_id'].append(str(pair.id))
