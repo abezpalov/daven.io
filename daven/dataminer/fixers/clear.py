@@ -14,11 +14,16 @@ class Worker():
 
     def run(self):
 
-        count = PairInfo.objects.exclude(exported_at = None).count()
-        PairInfo.objects.exclude(exported_at = None).delete()
-        print('del', count)
+        i = 1
 
-        count = PairInfo.objects.filter(exported_at = None).count()
-        print('not_del', count)
+        print('to del:', PairInfo.objects.exclude(exported_at = None).count())
 
-
+        while True:
+            ids = PairInfo.objects.exclude(exported_at = None).values_list('id', flat=True)[0:1000]
+            ids = list(ids)
+            if len(ids) > 0:
+                PairInfo.objects.filter(id__in=list(ids)).delete()
+                print(i, len(ids))
+                i += 1
+            else:
+                break
